@@ -1,32 +1,42 @@
 {
-	"name": "bronze_sql_tipos_movimiento",
+	"name": "silver_rangos",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "dw_ffaa",
 			"type": "LinkedServiceReference"
 		},
 		"folder": {
-			"name": "bronze"
+			"name": "silver"
 		},
 		"annotations": [],
 		"type": "AzureSqlTable",
 		"schema": [
 			{
-				"name": "id_tipo",
-				"type": "varchar"
+				"name": "id_rango",
+				"type": "int",
+				"precision": 10
 			},
 			{
 				"name": "nombre",
 				"type": "varchar"
 			},
 			{
-				"name": "descripcion",
+				"name": "categoria",
+				"type": "varchar"
+			},
+			{
+				"name": "nivel_jerarquico",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "abreviatura",
 				"type": "varchar"
 			}
 		],
 		"typeProperties": {
-			"schema": "bronze",
-			"table": "tbl_tipos_movimiento"
+			"schema": "silver",
+			"table": "rangos"
 		}
 	}
 }

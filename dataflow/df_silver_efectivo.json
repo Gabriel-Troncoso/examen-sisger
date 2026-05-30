@@ -1,0 +1,220 @@
+{
+	"name": "df_silver_efectivo",
+	"properties": {
+		"folder": {
+			"name": "silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "bronze_sql_efectivos",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				},
+				{
+					"dataset": {
+						"referenceName": "bronze_sql_especialidades",
+						"type": "DatasetReference"
+					},
+					"name": "source2"
+				},
+				{
+					"dataset": {
+						"referenceName": "bronze_sql_estructura_organizacional",
+						"type": "DatasetReference"
+					},
+					"name": "source3"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "silver_efectivo",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				},
+				{
+					"dataset": {
+						"referenceName": "silver_especialidades",
+						"type": "DatasetReference"
+					},
+					"name": "sink2"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "derivedColumn3"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id_efectivo as string,",
+				"          id_especialidad as string,",
+				"          id_unidad_actual as string,",
+				"          id_rango_actual as string,",
+				"          nombre as string,",
+				"          ci as string,",
+				"          fecha_nacimiento as string,",
+				"          genero as string,",
+				"          departamento_origen as string,",
+				"          fecha_ingreso as string,",
+				"          estado as string,",
+				"          salario_mensual as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT\\n    CAST(id_efectivo AS VARCHAR(50)) AS id_efectivo,\\n    CAST(id_especialidad AS VARCHAR(50)) AS id_especialidad,\\n    CAST(id_unidad_actual AS VARCHAR(50)) AS id_unidad_actual,\\n    CAST(id_rango_actual AS VARCHAR(50)) AS id_rango_actual,\\n    CAST(nombre AS VARCHAR(255)) AS nombre,\\n    CAST(ci AS VARCHAR(50)) AS ci,\\n    CAST(fecha_nacimiento AS VARCHAR(50)) AS fecha_nacimiento,\\n    CAST(genero AS VARCHAR(50)) AS genero,\\n    CAST(departamento_origen AS VARCHAR(100)) AS departamento_origen,\\n    CAST(fecha_ingreso AS VARCHAR(50)) AS fecha_ingreso,\\n    CAST(estado AS VARCHAR(50)) AS estado,\\n    CAST(salario_mensual AS VARCHAR(50)) AS salario_mensual\\nFROM bronze.tbl_efectivos\\nWHERE id_efectivo IS NOT NULL',",
+				"     format: 'query') ~> source1",
+				"source(output(",
+				"          id_especialidad as string,",
+				"          nombre as string,",
+				"          area as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT\\n    CAST(id_especialidad AS VARCHAR(50)) AS id_especialidad,\\n    CAST(nombre AS VARCHAR(150)) AS nombre,\\n    CAST(area AS VARCHAR(150)) AS area\\nFROM bronze.tbl_especialidades\\nWHERE id_especialidad IS NOT NULL\\n  AND TRIM(CAST(id_especialidad AS VARCHAR(50))) <> \\'\\'',",
+				"     format: 'query') ~> source2",
+				"source(output(",
+				"          id_estructura as string,",
+				"          id_padre as string,",
+				"          nivel as string,",
+				"          nombre as string,",
+				"          sigla as string,",
+				"          tipo as string,",
+				"          cobertura_departamentos as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT\\n    CAST(id_estructura AS VARCHAR(50)) AS id_estructura,\\n    CAST(id_padre AS VARCHAR(50)) AS id_padre,\\n    CAST(nivel AS VARCHAR(100)) AS nivel,\\n    CAST(nombre AS VARCHAR(255)) AS nombre,\\n    CAST(sigla AS VARCHAR(50)) AS sigla,\\n    CAST(tipo AS VARCHAR(100)) AS tipo,\\n    CAST(cobertura_departamentos AS VARCHAR(255)) AS cobertura_departamentos\\nFROM bronze.tbl_estructura_organizacional\\nWHERE id_estructura IS NOT NULL\\n  AND TRIM(CAST(id_estructura AS VARCHAR(50))) <> \\'\\'',",
+				"     format: 'query') ~> source3",
+				"source1 derive(fecha_nacimiento = coalesce(     toDate(fecha_nacimiento, 'yyyyMMdd'),     toDate(fecha_nacimiento, 'yyyy-MM-dd'),     toDate(fecha_nacimiento, 'dd-MM-yyyy'),     toDate(fecha_nacimiento, 'dd/MM/yyyy'),     toDate(fecha_nacimiento, 'MM-dd-yyyy'),     toDate(fecha_nacimiento, 'yyyy/MM/dd'),     toDate(fecha_nacimiento, 'dd-MMM-yyyy'),     toDate(fecha_nacimiento, 'MMMM dd, yyyy'),     toDate(fecha_nacimiento, \"dd 'de' MMMM 'de' yyyy\") ),",
+				"          fecha_ingreso = coalesce(     toDate(fecha_nacimiento, 'yyyyMMdd'),     toDate(fecha_nacimiento, 'yyyy-MM-dd'),     toDate(fecha_nacimiento, 'dd-MM-yyyy'),     toDate(fecha_nacimiento, 'dd/MM/yyyy'),     toDate(fecha_nacimiento, 'MM-dd-yyyy'),     toDate(fecha_nacimiento, 'yyyy/MM/dd'),     toDate(fecha_nacimiento, 'dd-MMM-yyyy'),     toDate(fecha_nacimiento, 'MMMM dd, yyyy'),     toDate(fecha_nacimiento, \"dd 'de' MMMM 'de' yyyy\") ),",
+				"          genero = iif(     lower(trim(genero)) == 'masculino' || lower(trim(genero)) == 'hombre' || lower(trim(genero)) == 'masc.' || lower(trim(genero)) == 'masc' || lower(trim(genero)) == 'm',     'Masculino',     iif(         lower(trim(genero)) == 'femenino' || lower(trim(genero)) == 'mujer' || lower(trim(genero)) == 'fem.' || lower(trim(genero)) == 'fem' || lower(trim(genero)) == 'f',         'Femenino',         'No definido'     ) ),",
+				"          departamento_origen = case(     like(upper(toString(departamento_origen)), '%PAZ%') || like(upper(toString(departamento_origen)), '%L.P%') || upper(trim(toString(departamento_origen))) == 'LP', 'La Paz',     like(upper(toString(departamento_origen)), '%CBB%') || like(upper(toString(departamento_origen)), '%COCH%'), 'Cochabamba',     like(upper(toString(departamento_origen)), '%ORU%') || upper(trim(toString(departamento_origen))) == 'OR', 'Oruro',     like(upper(toString(departamento_origen)), '%TAR%') || upper(trim(toString(departamento_origen))) == 'TI' || upper(trim(toString(departamento_origen))) == 'TJ', 'Tarija',     like(upper(toString(departamento_origen)), '%CRUZ%') || upper(trim(toString(departamento_origen))) == 'SC', 'Santa Cruz',     like(upper(toString(departamento_origen)), '%POT%') || upper(trim(toString(departamento_origen))) == 'PT', 'Potosi',     like(upper(toString(departamento_origen)), '%BEN%') || upper(trim(toString(departamento_origen))) == 'BN' || upper(trim(toString(departamento_origen))) == 'BE' || upper(trim(toString(departamento_origen))) == 'BEN.' || upper(trim(toString(departamento_origen))) == 'BE.', 'Beni',     like(upper(toString(departamento_origen)), '%CHU%') || upper(trim(toString(departamento_origen))) == 'CH', 'Chuquisaca',     like(upper(toString(departamento_origen)), '%PAN%') || upper(trim(toString(departamento_origen))) == 'PA', 'Pando',     initCap(toString(departamento_origen)) ),",
+				"          estado = iif(     lower(trim(estado)) == 'activo' || lower(trim(estado)) == 'activo.' || lower(trim(estado)) == 'act' || lower(trim(estado)) == 'actv' || lower(trim(estado)) == 'a' || lower(trim(estado)) == 'en actividad',     'Activo',     iif(         lower(trim(estado)) == 'baja' || lower(trim(estado)) == 'dado de baja',         'Baja',         iif(             lower(trim(estado)) == 'reserva' || lower(trim(estado)) == 'r' || lower(trim(estado)) == 'rsv',             'Reserva',             'No definido'         )     ) ),",
+				"          nombre = initCap(lower(trim(nombre))),",
+				"          salario_mensual = iif(\r",
+				"    isNull(salario_mensual) || trim(toString(salario_mensual)) == '',\r",
+				"    toDecimal(0),\r",
+				"    toDecimal(\r",
+				"        replace(\r",
+				"            replace(\r",
+				"                replace(\r",
+				"                    replace(\r",
+				"                        replace(\r",
+				"                            upper(trim(toString(salario_mensual))),\r",
+				"                            'BS.',\r",
+				"                            ''\r",
+				"                        ),\r",
+				"                        'BS',\r",
+				"                        ''\r",
+				"                    ),\r",
+				"                    'BOB',\r",
+				"                    ''\r",
+				"                ),\r",
+				"                ' ',\r",
+				"                ''\r",
+				"            ),\r",
+				"            ',',\r",
+				"            ''\r",
+				"        ),\r",
+				"        18,\r",
+				"        2\r",
+				"    )\r",
+				"),",
+				"          ci = iif(\r",
+				"    instr(upper(trim(ci)), 'LP') > 0,\r",
+				"    concat(regexReplace(upper(trim(ci)), '[^0-9]', ''), '-LP'),\r",
+				"    iif(\r",
+				"        instr(upper(trim(ci)), 'CB') > 0 || instr(upper(trim(ci)), 'CBBA') > 0 || instr(upper(trim(ci)), 'COCH') > 0,\r",
+				"        concat(regexReplace(upper(trim(ci)), '[^0-9]', ''), '-CBBA'),\r",
+				"        iif(\r",
+				"            instr(upper(trim(ci)), 'SC') > 0 || instr(upper(trim(ci)), 'SANTA') > 0,\r",
+				"            concat(regexReplace(upper(trim(ci)), '[^0-9]', ''), '-SC'),\r",
+				"            iif(\r",
+				"                instr(upper(trim(ci)), 'OR') > 0,\r",
+				"                concat(regexReplace(upper(trim(ci)), '[^0-9]', ''), '-OR'),\r",
+				"                iif(\r",
+				"                    instr(upper(trim(ci)), 'PT') > 0 || instr(upper(trim(ci)), 'POT') > 0,\r",
+				"                    concat(regexReplace(upper(trim(ci)), '[^0-9]', ''), '-PT'),\r",
+				"                    concat(regexReplace(upper(trim(ci)), '[^0-9]', ''), '-SINDEP')\r",
+				"                )\r",
+				"            )\r",
+				"        )\r",
+				"    )\r",
+				")) ~> derivedColumn1",
+				"source2 derive(id_especialidad = toInteger(trim(id_especialidad)),",
+				"          nombre = initCap(lower(trim(nombre)))) ~> derivedColumn2",
+				"source3 derive(sigla = iif(     isNull(sigla) || trim(sigla) == '',     'SIN SIGLA',     upper(trim(sigla)) ),",
+				"          id_padre = iif(isNull(id_padre) || trim(id_padre) == '', toInteger(null()), toInteger(trim(id_padre))),",
+				"          nivel = initCap(lower(trim(nivel)))) ~> derivedColumn3",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_efectivo as integer,",
+				"          id_especialidad as integer,",
+				"          id_unidad_actual as integer,",
+				"          id_rango_actual as integer,",
+				"          nombre as string,",
+				"          ci as string,",
+				"          fecha_nacimiento as date,",
+				"          genero as string,",
+				"          departamento_origen as string,",
+				"          fecha_ingreso as date,",
+				"          estado as string,",
+				"          salario_mensual as decimal(12,2)",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          id_efectivo,",
+				"          id_especialidad,",
+				"          id_unidad_actual,",
+				"          id_rango_actual,",
+				"          nombre,",
+				"          ci,",
+				"          fecha_nacimiento,",
+				"          genero,",
+				"          departamento_origen,",
+				"          fecha_ingreso,",
+				"          estado,",
+				"          salario_mensual",
+				"     )) ~> sink1",
+				"derivedColumn2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_especialidad as integer,",
+				"          nombre as string,",
+				"          area as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink2"
+			]
+		}
+	}
+}

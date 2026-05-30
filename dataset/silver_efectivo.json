@@ -1,31 +1,35 @@
 {
-	"name": "bronze_sql_efectivos",
+	"name": "silver_efectivo",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "dw_ffaa",
 			"type": "LinkedServiceReference"
 		},
 		"folder": {
-			"name": "bronze"
+			"name": "silver"
 		},
 		"annotations": [],
 		"type": "AzureSqlTable",
 		"schema": [
 			{
 				"name": "id_efectivo",
-				"type": "varchar"
+				"type": "int",
+				"precision": 10
 			},
 			{
 				"name": "id_especialidad",
-				"type": "varchar"
+				"type": "int",
+				"precision": 10
 			},
 			{
 				"name": "id_unidad_actual",
-				"type": "varchar"
+				"type": "int",
+				"precision": 10
 			},
 			{
 				"name": "id_rango_actual",
-				"type": "varchar"
+				"type": "int",
+				"precision": 10
 			},
 			{
 				"name": "nombre",
@@ -37,7 +41,7 @@
 			},
 			{
 				"name": "fecha_nacimiento",
-				"type": "varchar"
+				"type": "date"
 			},
 			{
 				"name": "genero",
@@ -49,7 +53,7 @@
 			},
 			{
 				"name": "fecha_ingreso",
-				"type": "varchar"
+				"type": "date"
 			},
 			{
 				"name": "estado",
@@ -57,12 +61,14 @@
 			},
 			{
 				"name": "salario_mensual",
-				"type": "varchar"
+				"type": "decimal",
+				"precision": 12,
+				"scale": 2
 			}
 		],
 		"typeProperties": {
-			"schema": "bronze",
-			"table": "tbl_efectivos"
+			"schema": "silver",
+			"table": "efectivos"
 		}
 	}
 }

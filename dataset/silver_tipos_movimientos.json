@@ -1,19 +1,20 @@
 {
-	"name": "bronze_sql_tipos_movimiento",
+	"name": "silver_tipos_movimientos",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "dw_ffaa",
 			"type": "LinkedServiceReference"
 		},
 		"folder": {
-			"name": "bronze"
+			"name": "silver"
 		},
 		"annotations": [],
 		"type": "AzureSqlTable",
 		"schema": [
 			{
 				"name": "id_tipo",
-				"type": "varchar"
+				"type": "int",
+				"precision": 10
 			},
 			{
 				"name": "nombre",
@@ -25,8 +26,8 @@
 			}
 		],
 		"typeProperties": {
-			"schema": "bronze",
-			"table": "tbl_tipos_movimiento"
+			"schema": "silver",
+			"table": "tipos_movimiento"
 		}
 	}
 }

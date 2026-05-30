@@ -1,47 +1,55 @@
 {
-	"name": "bronze_sql_movimientos_personal",
+	"name": "silver_movimientos_personal",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "dw_ffaa",
 			"type": "LinkedServiceReference"
 		},
 		"folder": {
-			"name": "bronze"
+			"name": "silver"
 		},
 		"annotations": [],
 		"type": "AzureSqlTable",
 		"schema": [
 			{
 				"name": "id_movimiento",
-				"type": "varchar"
+				"type": "int",
+				"precision": 10
 			},
 			{
 				"name": "id_efectivo",
-				"type": "varchar"
+				"type": "int",
+				"precision": 10
 			},
 			{
 				"name": "id_unidad_destino",
-				"type": "varchar"
+				"type": "int",
+				"precision": 10
 			},
 			{
 				"name": "id_rango",
-				"type": "varchar"
+				"type": "int",
+				"precision": 10
 			},
 			{
 				"name": "id_tipo",
-				"type": "varchar"
+				"type": "int",
+				"precision": 10
 			},
 			{
 				"name": "fecha_movimiento",
-				"type": "varchar"
+				"type": "date"
 			},
 			{
 				"name": "antiguedad_anios",
-				"type": "varchar"
+				"type": "int",
+				"precision": 10
 			},
 			{
 				"name": "salario_mensual",
-				"type": "varchar"
+				"type": "decimal",
+				"precision": 12,
+				"scale": 2
 			},
 			{
 				"name": "observaciones",
@@ -49,8 +57,8 @@
 			}
 		],
 		"typeProperties": {
-			"schema": "bronze",
-			"table": "tbl_movimientos_personal"
+			"schema": "silver",
+			"table": "movimientos_personal"
 		}
 	}
 }
