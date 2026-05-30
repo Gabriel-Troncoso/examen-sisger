@@ -1,0 +1,45 @@
+{
+	"name": "bronze_sql_estructura_organizacional",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "dw_ffaa",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "id_estructura",
+				"type": "varchar"
+			},
+			{
+				"name": "id_padre",
+				"type": "varchar"
+			},
+			{
+				"name": "nivel",
+				"type": "varchar"
+			},
+			{
+				"name": "nombre",
+				"type": "varchar"
+			},
+			{
+				"name": "sigla",
+				"type": "varchar"
+			},
+			{
+				"name": "tipo",
+				"type": "varchar"
+			},
+			{
+				"name": "cobertura_departamentos",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "bronze",
+			"table": "tbl_estructura_organizacional"
+		}
+	}
+}

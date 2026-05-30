@@ -1,0 +1,29 @@
+{
+	"name": "bronze_sql_especialidades",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "dw_ffaa",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "id_especialidad",
+				"type": "varchar"
+			},
+			{
+				"name": "nombre",
+				"type": "varchar"
+			},
+			{
+				"name": "area",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "bronze",
+			"table": "tbl_especialidades"
+		}
+	}
+}
