@@ -1,0 +1,21 @@
+{
+	"name": "bronze_dl_movimientospersonal",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "datalake_ffaa",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "movimientos_personal.parquet",
+				"folderPath": "movimientos_personal",
+				"fileSystem": "bronze"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}

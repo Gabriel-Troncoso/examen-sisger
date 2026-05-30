@@ -1,0 +1,21 @@
+{
+	"name": "bronze_dl_tiposoperacion",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "datalake_ffaa",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "tipos_operacion.parquet",
+				"folderPath": "tipos_operacion",
+				"fileSystem": "bronze"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}

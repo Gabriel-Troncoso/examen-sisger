@@ -1,0 +1,21 @@
+{
+	"name": "bronze_dl_tiposmovimiento",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "datalake_ffaa",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "tipos_movimiento.parquet",
+				"folderPath": "tipos_movimiento",
+				"fileSystem": "bronze"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}

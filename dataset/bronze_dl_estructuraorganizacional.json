@@ -1,0 +1,21 @@
+{
+	"name": "bronze_dl_estructuraorganizacional",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "datalake_ffaa",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "estructura_organizacional.parquet",
+				"folderPath": "estructura_organizacional",
+				"fileSystem": "bronze"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}

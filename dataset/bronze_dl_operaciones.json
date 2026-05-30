@@ -1,0 +1,21 @@
+{
+	"name": "bronze_dl_operaciones",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "datalake_ffaa",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "operaciones.parquet",
+				"folderPath": "operaciones",
+				"fileSystem": "bronze"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
