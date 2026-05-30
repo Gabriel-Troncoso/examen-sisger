@@ -1,0 +1,10 @@
+{
+	"name": "adf-ffaa-bolivia-12344",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Enabled",
+			"editable": true
+		}
+	},
+	"location": "brazilsouth"
+}
