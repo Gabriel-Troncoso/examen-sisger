@@ -113,7 +113,11 @@
 				"          departamento_origen,",
 				"          fecha_ingreso,",
 				"          estado,",
-				"          salario_mensual",
+				"          salario_mensual,",
+				"          id_efectivo,",
+				"          id_especialidad,",
+				"          id_unidad_actual,",
+				"          id_rango_actual",
 				"     )) ~> sink1"
 			]
 		}
