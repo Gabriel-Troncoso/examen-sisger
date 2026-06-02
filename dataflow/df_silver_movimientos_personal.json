@@ -27,9 +27,6 @@
 			"transformations": [
 				{
 					"name": "derivedColumn1"
-				},
-				{
-					"name": "antiguedadlimpia"
 				}
 			],
 			"scriptLines": [
@@ -56,9 +53,31 @@
 				"          id_tipo = toInteger(trim(id_tipo)),",
 				"          fecha_movimiento = coalesce(     toDate(fecha_movimiento, 'yyyyMMdd'),     toDate(fecha_movimiento, 'yyyy-MM-dd'),     toDate(fecha_movimiento, 'dd-MM-yyyy'),     toDate(fecha_movimiento, 'dd/MM/yyyy'),     toDate(fecha_movimiento, 'MM-dd-yyyy'),     toDate(fecha_movimiento, 'yyyy/MM/dd'),     toDate(fecha_movimiento, 'dd-MMM-yyyy'),     toDate(fecha_movimiento, 'MMMM dd, yyyy'),     toDate(fecha_movimiento, \"dd 'de' MMMM 'de' yyyy\") ),",
 				"          salario_mensual = iif(     isNull(salario_mensual) || trim(toString(salario_mensual)) == '',     toDecimal(0),     abs(         toDecimal(             replace(                 replace(                     replace(                         replace(                             replace(                                 upper(trim(toString(salario_mensual))),                                 'BS.',                                 ''                             ),                             'BS',                             ''                         ),                         'BOB',                         ''                     ),                     ' ',                     ''                 ),                 ',',                 ''             ),             18,             2         )     ) ),",
-				"          observaciones = iif(isNull(observaciones) || trim(observaciones) == '', 'Sin observaciones', initCap(lower(trim(observaciones))))) ~> derivedColumn1",
-				"derivedColumn1 derive(antiguedad_anios = lower(trim(toString(antiguedad_anios)))) ~> antiguedadlimpia",
-				"antiguedadlimpia sink(allowSchemaDrift: true,",
+				"          observaciones = iif(isNull(observaciones) || trim(observaciones) == '', 'Sin observaciones', initCap(lower(trim(observaciones)))),",
+				"          antiguedad_anios = toDouble(regexReplace(regexReplace(regexReplace(regexReplace(regexReplace(regexReplace(regexReplace(regexReplace(regexReplace(regexReplace(regexReplace(regexReplace(regexReplace(regexReplace(regexReplace(regexReplace(regexReplace(regexReplace(regexReplace(regexReplace(\r",
+				"  lower(trim(antiguedad_anios)),\r",
+				"  `veintidós|veintidos`, '22'),\r",
+				"  `veintiuno`, '21'),\r",
+				"  `veinte`, '20'),\r",
+				"  `dieciocho`, '18'),\r",
+				"  `diecisiete`, '17'),\r",
+				"  `dieciséis|dieciseis`, '16'),\r",
+				"  `quince`, '15'),\r",
+				"  `catorce`, '14'),\r",
+				"  `trece`, '13'),\r",
+				"  `doce`, '12'),\r",
+				"  `once`, '11'),\r",
+				"  `diez`, '10'),\r",
+				"  `nueve`, '9'),\r",
+				"  `ocho`, '8'),\r",
+				"  `siete`, '7'),\r",
+				"  `seis`, '6'),\r",
+				"  `cinco`, '5'),\r",
+				"  `cuatro`, '4'),\r",
+				"  `cero`, '0'),\r",
+				"  `(años|a\\.|años)`, '')\r",
+				")) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          id_movimiento as integer,",

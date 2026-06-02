@@ -79,7 +79,11 @@
 				"            )\r",
 				"        )\r",
 				"    )\r",
-				")) ~> derivedColumn1",
+				"),",
+				"          id_efectivo = toInteger(trim(toString(id_efectivo))),",
+				"          id_especialidad = toInteger(trim(toString(id_especialidad))),",
+				"          id_unidad_actual = toInteger(trim(toString(id_unidad_actual))),",
+				"          id_rango_actual = toInteger(trim(toString(id_rango_actual)))) ~> derivedColumn1",
 				"derivedColumn1 derive(nombre = trim(     replace(         replace(             replace(                 nombre,                 '#',                 ' '             ),             '/',             ' '         ),         '\\\\',         ' '     ) )) ~> derivedColumn4",
 				"derivedColumn4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
@@ -104,21 +108,7 @@
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     errorHandlingOption: 'stopOnFirstError',",
-				"     mapColumn(",
-				"          id_efectivo,",
-				"          id_especialidad,",
-				"          id_unidad_actual,",
-				"          id_rango_actual,",
-				"          nombre,",
-				"          ci,",
-				"          fecha_nacimiento,",
-				"          genero,",
-				"          departamento_origen,",
-				"          fecha_ingreso,",
-				"          estado,",
-				"          salario_mensual",
-				"     )) ~> sink1"
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
 			]
 		}
 	}

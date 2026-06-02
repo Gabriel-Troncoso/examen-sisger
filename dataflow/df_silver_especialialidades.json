@@ -1,0 +1,65 @@
+{
+	"name": "df_silver_especialialidades",
+	"properties": {
+		"folder": {
+			"name": "silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "bronze_sql_especialidades",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "silver_especialidades",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id_especialidad as string,",
+				"          nombre as string,",
+				"          area as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT DISTINCT\\n    CAST(id_especialidad AS VARCHAR(50)) AS id_especialidad,\\n    CAST(nombre AS VARCHAR(150)) AS nombre,\\n    CAST(area AS VARCHAR(150)) AS area\\nFROM bronze.tbl_especialidades\\nWHERE id_especialidad IS NOT NULL\\n  AND TRIM(CAST(id_especialidad AS VARCHAR(50))) <> \\'\\'',",
+				"     format: 'query') ~> source1",
+				"source1 derive(id_especialidad = toInteger(trim(toString(id_especialidad))),",
+				"          nombre = initCap(lower(trim(nombre))),",
+				"          area = initCap(lower(trim(area)))) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_especialidad as integer,",
+				"          nombre as string,",
+				"          area as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     preSQLs:['DELETE FROM silver.especialidades;'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+			]
+		}
+	}
+}
