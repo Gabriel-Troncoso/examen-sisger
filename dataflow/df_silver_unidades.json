@@ -1,0 +1,77 @@
+{
+	"name": "df_silver_unidades",
+	"properties": {
+		"folder": {
+			"name": "silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "bronze_sql_unidades",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "silver_unidades",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id_unidad as string,",
+				"          id_brigada as string,",
+				"          nombre as string,",
+				"          codigo as string,",
+				"          ciudad as string,",
+				"          departamento as string,",
+				"          tipo_cuartel as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT DISTINCT\\n    CAST(id_unidad AS VARCHAR(50)) AS id_unidad,\\n    CAST(id_brigada AS VARCHAR(50)) AS id_brigada,\\n    CAST(nombre AS VARCHAR(255)) AS nombre,\\n    CAST(codigo AS VARCHAR(50)) AS codigo,\\n    CAST(ciudad AS VARCHAR(150)) AS ciudad,\\n    CAST(departamento AS VARCHAR(150)) AS departamento,\\n    CAST(tipo_cuartel AS VARCHAR(100)) AS tipo_cuartel\\nFROM bronze.tbl_unidades\\nWHERE id_unidad IS NOT NULL\\n  AND TRIM(CAST(id_unidad AS VARCHAR(50))) <> \\'\\'',",
+				"     format: 'query') ~> source1",
+				"source1 derive(id_unidad = toInteger(trim(id_unidad)),",
+				"          id_brigada = toInteger(trim(id_brigada)),",
+				"          nombre = initCap(lower(trim(nombre))),",
+				"          codigo = upper(trim(codigo)),",
+				"          ciudad = initCap(lower(trim(ciudad))),",
+				"          departamento = initCap(lower(trim(departamento))),",
+				"          tipo_cuartel = initCap(lower(trim(tipo_cuartel)))) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_unidad as integer,",
+				"          id_brigada as integer,",
+				"          nombre as string,",
+				"          codigo as string,",
+				"          ciudad as string,",
+				"          departamento as string,",
+				"          tipo_cuartel as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     preSQLs:['DELETE FROM silver.unidades;'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+			]
+		}
+	}
+}

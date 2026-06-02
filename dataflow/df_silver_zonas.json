@@ -1,0 +1,80 @@
+{
+	"name": "df_silver_zonas",
+	"properties": {
+		"folder": {
+			"name": "silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "bronze_sql_zonas",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "silver_zonas",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id_zona as string,",
+				"          nombre as string,",
+				"          departamento as string,",
+				"          frontera_con as string,",
+				"          tipo_terreno as string,",
+				"          altitud_msnm as string,",
+				"          nivel_riesgo as string,",
+				"          acceso_carretero as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT DISTINCT\\n    CAST(id_zona AS VARCHAR(50)) AS id_zona,\\n    CAST(nombre AS VARCHAR(150)) AS nombre,\\n    CAST(departamento AS VARCHAR(150)) AS departamento,\\n    CAST(frontera_con AS VARCHAR(150)) AS frontera_con,\\n    CAST(tipo_terreno AS VARCHAR(100)) AS tipo_terreno,\\n    CAST(altitud_msnm AS VARCHAR(50)) AS altitud_msnm,\\n    CAST(nivel_riesgo AS VARCHAR(50)) AS nivel_riesgo,\\n    CAST(acceso_carretero AS VARCHAR(50)) AS acceso_carretero\\nFROM bronze.tbl_zonas\\nWHERE id_zona IS NOT NULL\\n  AND TRIM(CAST(id_zona AS VARCHAR(50))) <> \\'\\'',",
+				"     format: 'query') ~> source1",
+				"source1 derive(id_zona = toInteger(trim(id_zona)),",
+				"          nombre = initCap(lower(trim(nombre))),",
+				"          departamento = initCap(lower(trim(departamento))),",
+				"          frontera_con = initCap(lower(trim(frontera_con))),",
+				"          tipo_terreno = initCap(lower(trim(tipo_terreno))),",
+				"          altitud_msnm = toInteger(trim(altitud_msnm)),",
+				"          nivel_riesgo = initCap(lower(trim(nivel_riesgo))),",
+				"          acceso_carretero = initCap(lower(trim(acceso_carretero)))) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_zona as integer,",
+				"          nombre as string,",
+				"          departamento as string,",
+				"          frontera_con as string,",
+				"          tipo_terreno as string,",
+				"          altitud_msnm as integer,",
+				"          nivel_riesgo as string,",
+				"          acceso_carretero as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     preSQLs:['DELETE FROM silver.zonas;'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+			]
+		}
+	}
+}

@@ -1,0 +1,77 @@
+{
+	"name": "df_silver_estructura_organizacional",
+	"properties": {
+		"folder": {
+			"name": "silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "bronze_sql_estructura_organizacional",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "silver_estructura_organizacional",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id_estructura as string,",
+				"          id_padre as string,",
+				"          nivel as string,",
+				"          nombre as string,",
+				"          sigla as string,",
+				"          tipo as string,",
+				"          cobertura_departamentos as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT DISTINCT\\n    CAST(id_estructura AS VARCHAR(50)) AS id_estructura,\\n    CAST(id_padre AS VARCHAR(50)) AS id_padre,\\n    CAST(nivel AS VARCHAR(100)) AS nivel,\\n    CAST(nombre AS VARCHAR(255)) AS nombre,\\n    CAST(sigla AS VARCHAR(50)) AS sigla,\\n    CAST(tipo AS VARCHAR(100)) AS tipo,\\n    CAST(cobertura_departamentos AS VARCHAR(255)) AS cobertura_departamentos\\nFROM bronze.tbl_estructura_organizacional\\nWHERE id_estructura IS NOT NULL\\n  AND TRIM(CAST(id_estructura AS VARCHAR(50))) <> \\'\\'',",
+				"     format: 'query') ~> source1",
+				"source1 derive(id_estructura = toInteger(trim(id_estructura)),",
+				"          id_padre = iif(isNull(id_padre) || trim(id_padre) == '', toInteger(null()), toInteger(trim(id_padre))),",
+				"          nivel = initCap(lower(trim(nivel))),",
+				"          nombre = initCap(lower(trim(nombre))),",
+				"          sigla = iif(isNull(sigla) || trim(sigla) == '' || lower(trim(sigla)) == 'null', 'SIN SIGLA', upper(trim(sigla))),",
+				"          tipo = initCap(lower(trim(tipo))),",
+				"          cobertura_departamentos = initCap(lower(trim(cobertura_departamentos)))) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_estructura as integer,",
+				"          id_padre as integer,",
+				"          nivel as string,",
+				"          nombre as string,",
+				"          sigla as string,",
+				"          tipo as string,",
+				"          cobertura_departamentos as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     preSQLs:['DELETE FROM silver.estructura_organizacional;'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+			]
+		}
+	}
+}

@@ -1,0 +1,86 @@
+{
+	"name": "df_silver_movimientos_personal",
+	"properties": {
+		"folder": {
+			"name": "silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "bronze_sql_movimientos_personal",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "silver_movimientos_personal",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "antiguedadlimpia"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id_movimiento as string,",
+				"          id_efectivo as string,",
+				"          id_unidad_destino as string,",
+				"          id_rango as string,",
+				"          id_tipo as string,",
+				"          fecha_movimiento as string,",
+				"          antiguedad_anios as string,",
+				"          salario_mensual as string,",
+				"          observaciones as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT DISTINCT\\n    CAST(id_movimiento AS VARCHAR(50)) AS id_movimiento,\\n    CAST(id_efectivo AS VARCHAR(50)) AS id_efectivo,\\n    CAST(id_unidad_destino AS VARCHAR(50)) AS id_unidad_destino,\\n    CAST(id_rango AS VARCHAR(50)) AS id_rango,\\n    CAST(id_tipo AS VARCHAR(50)) AS id_tipo,\\n    CAST(fecha_movimiento AS VARCHAR(50)) AS fecha_movimiento,\\n    CAST(antiguedad_anios AS VARCHAR(50)) AS antiguedad_anios,\\n    CAST(salario_mensual AS VARCHAR(50)) AS salario_mensual,\\n    CAST(observaciones AS VARCHAR(500)) AS observaciones\\nFROM bronze.tbl_movimientos_personal\\nWHERE id_movimiento IS NOT NULL\\n  AND TRIM(CAST(id_movimiento AS VARCHAR(50))) <> \\'\\'',",
+				"     format: 'query') ~> source1",
+				"source1 derive(id_movimiento = toInteger(trim(id_movimiento)),",
+				"          id_efectivo = toInteger(trim(id_efectivo)),",
+				"          id_unidad_destino = toInteger(trim(id_unidad_destino)),",
+				"          id_rango = toInteger(trim(id_rango)),",
+				"          id_tipo = toInteger(trim(id_tipo)),",
+				"          fecha_movimiento = coalesce(     toDate(fecha_movimiento, 'yyyyMMdd'),     toDate(fecha_movimiento, 'yyyy-MM-dd'),     toDate(fecha_movimiento, 'dd-MM-yyyy'),     toDate(fecha_movimiento, 'dd/MM/yyyy'),     toDate(fecha_movimiento, 'MM-dd-yyyy'),     toDate(fecha_movimiento, 'yyyy/MM/dd'),     toDate(fecha_movimiento, 'dd-MMM-yyyy'),     toDate(fecha_movimiento, 'MMMM dd, yyyy'),     toDate(fecha_movimiento, \"dd 'de' MMMM 'de' yyyy\") ),",
+				"          salario_mensual = iif(     isNull(salario_mensual) || trim(toString(salario_mensual)) == '',     toDecimal(0),     abs(         toDecimal(             replace(                 replace(                     replace(                         replace(                             replace(                                 upper(trim(toString(salario_mensual))),                                 'BS.',                                 ''                             ),                             'BS',                             ''                         ),                         'BOB',                         ''                     ),                     ' ',                     ''                 ),                 ',',                 ''             ),             18,             2         )     ) ),",
+				"          observaciones = iif(isNull(observaciones) || trim(observaciones) == '', 'Sin observaciones', initCap(lower(trim(observaciones))))) ~> derivedColumn1",
+				"derivedColumn1 derive(antiguedad_anios = lower(trim(toString(antiguedad_anios)))) ~> antiguedadlimpia",
+				"antiguedadlimpia sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_movimiento as integer,",
+				"          id_efectivo as integer,",
+				"          id_unidad_destino as integer,",
+				"          id_rango as integer,",
+				"          id_tipo as integer,",
+				"          fecha_movimiento as date,",
+				"          antiguedad_anios as integer,",
+				"          salario_mensual as decimal(12,2),",
+				"          observaciones as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     preSQLs:['DELETE FROM silver.movimientos_personal;'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+			]
+		}
+	}
+}
