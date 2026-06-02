@@ -55,7 +55,7 @@
 				"     updateable:false,",
 				"     upsertable:false,",
 				"     format: 'table',",
-				"     preSQLs:['DELETE FROM silver.tipos_movimientos;'],",
+				"     preSQLs:['DELETE FROM silver.tipos_movimiento;'],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
 				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
