@@ -1,0 +1,83 @@
+{
+	"name": "gold_fact_movimientos_personal",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "dw_ffaa",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "gold"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "id_movimiento",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "nombre_efectivo",
+				"type": "varchar"
+			},
+			{
+				"name": "ci",
+				"type": "varchar"
+			},
+			{
+				"name": "genero",
+				"type": "varchar"
+			},
+			{
+				"name": "unidad_destino",
+				"type": "varchar"
+			},
+			{
+				"name": "departamento_unidad",
+				"type": "varchar"
+			},
+			{
+				"name": "rango",
+				"type": "varchar"
+			},
+			{
+				"name": "tipo_movimiento",
+				"type": "varchar"
+			},
+			{
+				"name": "fecha_movimiento",
+				"type": "date"
+			},
+			{
+				"name": "anio_movimiento",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "mes_movimiento",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "antiguedad_anios",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "salario_mensual",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 2
+			},
+			{
+				"name": "cantidad_movimientos",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "gold",
+			"table": "fact_movimientos_personal"
+		}
+	}
+}

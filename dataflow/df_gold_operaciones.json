@@ -1,0 +1,203 @@
+{
+	"name": "df_gold_operaciones",
+	"properties": {
+		"folder": {
+			"name": "gold"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "silver_operaciones",
+						"type": "DatasetReference"
+					},
+					"name": "srcoperaciones"
+				},
+				{
+					"dataset": {
+						"referenceName": "silver_tipo_operacion",
+						"type": "DatasetReference"
+					},
+					"name": "srctiposoperacion"
+				},
+				{
+					"dataset": {
+						"referenceName": "silver_unidades",
+						"type": "DatasetReference"
+					},
+					"name": "srcunidades"
+				},
+				{
+					"dataset": {
+						"referenceName": "silver_zonas",
+						"type": "DatasetReference"
+					},
+					"name": "srczonas"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "gold_fact_operaciones",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "joinTipoOperacion"
+				},
+				{
+					"name": "joinUnidad"
+				},
+				{
+					"name": "joinZona"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id_operacion as integer,",
+				"          id_tipo as integer,",
+				"          id_unidad_resp as integer,",
+				"          id_zona as integer,",
+				"          nombre_operacion as string,",
+				"          fecha_inicio as date,",
+				"          fecha_fin as date,",
+				"          efectivos_desplegados as integer,",
+				"          vehiculos_utilizados as integer,",
+				"          duracion_dias as integer,",
+				"          costo_operacion as decimal(14,2),",
+				"          resultado as string,",
+				"          detenidos as integer,",
+				"          area_km2 as decimal(12,2),",
+				"          incidentes as integer,",
+				"          observaciones as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> srcoperaciones",
+				"source(output(",
+				"          id_tipo as integer,",
+				"          nombre as string,",
+				"          categoria as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> srctiposoperacion",
+				"source(output(",
+				"          id_unidad as integer,",
+				"          id_brigada as integer,",
+				"          nombre as string,",
+				"          codigo as string,",
+				"          ciudad as string,",
+				"          departamento as string,",
+				"          tipo_cuartel as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> srcunidades",
+				"source(output(",
+				"          id_zona as integer,",
+				"          nombre as string,",
+				"          departamento as string,",
+				"          frontera_con as string,",
+				"          tipo_terreno as string,",
+				"          altitud_msnm as integer,",
+				"          nivel_riesgo as string,",
+				"          acceso_carretero as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> srczonas",
+				"srcoperaciones, srctiposoperacion join(srcoperaciones@id_tipo == srctiposoperacion@id_tipo,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinTipoOperacion",
+				"joinTipoOperacion, srcunidades join(id_unidad_resp == id_unidad,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinUnidad",
+				"joinUnidad, srczonas join(srcoperaciones@id_zona == srczonas@id_zona,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinZona",
+				"derivedColumn1 select(mapColumn(",
+				"          id_operacion,",
+				"          nombre_operacion,",
+				"          fecha_inicio,",
+				"          fecha_fin,",
+				"          efectivos_desplegados,",
+				"          vehiculos_utilizados,",
+				"          duracion_dias,",
+				"          costo_operacion,",
+				"          resultado,",
+				"          detenidos,",
+				"          area_km2,",
+				"          incidentes,",
+				"          observaciones,",
+				"          id_tipo = srctiposoperacion@id_tipo,",
+				"          tipo_operacion = srctiposoperacion@nombre,",
+				"          categoria_operacion = categoria,",
+				"          id_unidad,",
+				"          unidad_responsable = srcunidades@nombre,",
+				"          departamento_unidad = srcunidades@departamento,",
+				"          id_zona = srczonas@id_zona,",
+				"          zona_operacion = srczonas@nombre,",
+				"          departamento_zona = srczonas@departamento,",
+				"          anio_inicio,",
+				"          mes_inicio",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"joinZona derive(mes_inicio = year(fecha_inicio),",
+				"          anio_inicio = month(fecha_inicio)) ~> derivedColumn1",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_operacion as integer,",
+				"          nombre_operacion as string,",
+				"          tipo_operacion as string,",
+				"          categoria_operacion as string,",
+				"          unidad_responsable as string,",
+				"          departamento_unidad as string,",
+				"          zona_operacion as string,",
+				"          departamento_zona as string,",
+				"          fecha_inicio as date,",
+				"          fecha_fin as date,",
+				"          anio_inicio as integer,",
+				"          mes_inicio as integer,",
+				"          costo_operacion as decimal(18,2),",
+				"          efectivos_desplegados as integer,",
+				"          vehiculos_utilizados as integer,",
+				"          duracion_dias as integer,",
+				"          detenidos as integer,",
+				"          incidentes as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     preSQLs:['DELETE FROM gold.fact_operaciones;'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+			]
+		}
+	}
+}
